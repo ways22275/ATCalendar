@@ -1,0 +1,7 @@
+<resources>
+  <string name="app_name">AmazingTalkCalendar</string>
+
+  <string name="morning">Morning</string>
+  <string name="evening">Evening</string>
+  <string name="night">Night</string>
+</resources>
