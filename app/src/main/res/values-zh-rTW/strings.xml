@@ -1,0 +1,10 @@
+<resources>
+  <string name="app_name">AmazingTalkCalendar</string>
+
+  <string name="morning">早上</string>
+  <string name="evening">下午</string>
+  <string name="night">晚上</string>
+
+  <string name="next">下一週</string>
+  <string name="previous">前一週</string>
+</resources>
