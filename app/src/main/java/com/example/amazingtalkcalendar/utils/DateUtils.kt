@@ -18,10 +18,10 @@ object DateUtils {
   val commonFullDateWithTimePattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 00:00:00")
 
   private val localZoneOffset = ZoneOffset.of(OffsetDateTime.now().offset.id)
+
   private val commonFullDatePattern = DateTimeFormatter.ofPattern("yyyy-MM-dd")
   private val commonDayOfWeekPatternWithUS = DateTimeFormatter.ofPattern("E, MMM dd")
   private val commonDayOfWeekPatternWithZH = DateTimeFormatter.ofPattern("E - dd")
-
   private val commonShortTimePattern: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
   private val weekFields = WeekFields.ISO
@@ -61,6 +61,7 @@ object DateUtils {
       .format(pattern)
   }
 
+  // TODO Unit test
   fun getFormatLocalDateStringByUTCTime(utcTime: Long): String {
     val instant = Instant.ofEpochMilli(utcTime)
     val offset = OffsetDateTime.now().offset
