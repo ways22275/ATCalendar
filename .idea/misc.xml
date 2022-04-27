@@ -14,6 +14,7 @@
         <entry key="app/src/main/res/layout/fragment_schedule_list.xml" value="0.25" />
         <entry key="app/src/main/res/layout/home_fragment.xml" value="0.22056159420289856" />
         <entry key="app/src/main/res/layout/item_schedule.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/item_schedule_divider.xml" value="0.375" />
       </map>
     </option>
   </component>

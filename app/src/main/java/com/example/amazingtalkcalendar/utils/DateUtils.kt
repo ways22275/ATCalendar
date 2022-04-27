@@ -9,9 +9,9 @@ import java.util.*
 object DateUtils {
 
   const val HALT_HOUR_MILE_SECOND = 1800000
-  const val NOON_TIME = "06:00"
+
+  const val NOON_TIME = "12:00"
   const val EVENING_TIME = "17:00"
-  const val NIGHT_TIME = "22:00"
 
   val utcFullTimePattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
   val commonFullTimePattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")

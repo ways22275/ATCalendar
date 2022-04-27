@@ -1,30 +1,34 @@
 package com.example.amazingtalkcalendar.ui
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.amazingtalkcalendar.data.model.DayOfCurrentWeek
-import com.example.amazingtalkcalendar.data.model.ScheduleItem
-import com.example.amazingtalkcalendar.data.model.ScheduleSealed
-import com.example.amazingtalkcalendar.data.model.ScheduleTitleDto
+import com.example.amazingtalkcalendar.R
+import com.example.amazingtalkcalendar.data.model.*
 import com.example.amazingtalkcalendar.data.reposiroty.ScheduleRepository
 import com.example.amazingtalkcalendar.utils.DateUtils
+import com.example.amazingtalkcalendar.utils.DateUtils.EVENING_TIME
+import com.example.amazingtalkcalendar.utils.DateUtils.NOON_TIME
 import com.example.amazingtalkcalendar.utils.DateUtils.commonFullDateWithTimePattern
 import com.example.amazingtalkcalendar.utils.DateUtils.commonFullTimePattern
 import com.example.amazingtalkcalendar.utils.DateUtils.getDateDisplayName
 import com.example.amazingtalkcalendar.utils.DateUtils.getDaysOfCurrentWeek
 import com.example.amazingtalkcalendar.utils.DateUtils.getSpecificDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+  @ApplicationContext private val context: Context,
   private val repo: ScheduleRepository
 ) : ViewModel() {
 
@@ -37,17 +41,23 @@ class HomeViewModel @Inject constructor(
         val scheduleDto = getDaysOfCurrentWeek(getSpecificDate())
         daysOfCurrentWeekList.value = list.toMutableList().apply { add(scheduleDto) }
         val startAt = DateUtils.getFormatUTCDateStringByLocalTime(
-          DateUtils.getSpecificDateTime(LocalDate.parse(scheduleDto.firstDayOfWeek).atTime(0,0,0).format(commonFullTimePattern)))
-        fetchSchedules(startAt =  startAt)
+          DateUtils.getSpecificDateTime(
+            LocalDate.parse(scheduleDto.firstDayOfWeek).atTime(0, 0, 0).format(commonFullTimePattern)
+          )
+        )
+        fetchSchedules(startAt = startAt)
         scheduleDto
       }
       list.getOrNull(index) == null -> {
-        val specificDate = getSpecificDate(list[(index-1)].lastDayOfWeek)
+        val specificDate = getSpecificDate(list[(index - 1)].lastDayOfWeek)
         val scheduleDto = getDaysOfCurrentWeek(specificDate)
         daysOfCurrentWeekList.value = list.toMutableList().apply { add(scheduleDto) }
         val startAt = DateUtils.getFormatUTCDateStringByLocalTime(
-          DateUtils.getSpecificDateTime(LocalDate.parse(scheduleDto.firstDayOfWeek).atTime(0,0,0).format(commonFullTimePattern)))
-        fetchSchedules(startAt =  startAt)
+          DateUtils.getSpecificDateTime(
+            LocalDate.parse(scheduleDto.firstDayOfWeek).atTime(0, 0, 0).format(commonFullTimePattern)
+          )
+        )
+        fetchSchedules(startAt = startAt)
         scheduleDto
       }
       else -> {
@@ -66,13 +76,13 @@ class HomeViewModel @Inject constructor(
     "${it.firstDayOfWeek} - ${it.lastDayOfWeek}"
   }
   val previousBtnEnabled = Transformations.map(daysOfCurrentWeekIndex) { index ->
-    return@map (index-1) >= 0
+    return@map (index - 1) >= 0
   }
 
   val subTitleList = Transformations.map(daysOfCurrentWeek) { scheduleTitleDto ->
     return@map scheduleTitleDto.daysOfWeek.map {
       DayOfCurrentWeek(
-        originDate = LocalDate.parse(it).atTime(0,0,0).format(commonFullTimePattern),
+        originDate = LocalDate.parse(it).atTime(0, 0, 0).format(commonFullTimePattern),
         displayName = getDateDisplayName(it)
       )
     }
@@ -96,11 +106,12 @@ class HomeViewModel @Inject constructor(
 
   fun getScheduleByStartAt(currentDate: String): List<ScheduleSealed> {
     val list = scheduleData.value ?: emptyList()
-    return list.filterIsInstance<ScheduleItem>().filter {
+    val specificList = list.filterIsInstance<ScheduleItem>().filter {
       val date = LocalDateTime.parse(currentDate, commonFullTimePattern).format(commonFullDateWithTimePattern)
       val max = LocalDateTime.parse(it.startAt, commonFullTimePattern).format(commonFullDateWithTimePattern)
       date == max
     }
+    return mergeScheduleListByDividerItem(specificList)
   }
 
   private fun fetchSchedules(teacherName: String = "rebecca-shao", startAt: String) {
@@ -137,8 +148,6 @@ class HomeViewModel @Inject constructor(
         resultList.addAll(dividedList)
       }
     }
-
-    // TODO val noonItemIndex = findClosestTimeItemIndex()
     return resultList
   }
 
@@ -172,12 +181,54 @@ class HomeViewModel @Inject constructor(
     return finishList
   }
 
-  private fun findClosestTimeItemIndex(list: List<ScheduleSealed>, specificTime: String): Int {
-    var index = 0
-    list.forEach {
-      val item = it as ScheduleItem
-      val startTimestamp = Timestamp.valueOf(item.startAt)
+  private fun mergeScheduleListByDividerItem(list: List<ScheduleSealed>): List<ScheduleSealed> {
+    val noonTime = LocalTime.parse(NOON_TIME)
+    val eveningTime = LocalTime.parse(EVENING_TIME)
+    val result = list.toMutableList()
+
+    val morningItemIndex = result.indexOf(list.find {
+      val scheduleItemTime = LocalDateTime.parse((it as ScheduleItem).startAt, commonFullTimePattern).toLocalTime()
+      scheduleItemTime.isBefore(noonTime)
+    })
+
+    if (morningItemIndex != -1) {
+      result.add(morningItemIndex, ScheduleDividerItem(context.getString(R.string.morning)))
     }
-    return index
+
+    val afternoonItemIndex = result.indexOf(list.find {
+      if (it is ScheduleItem) {
+        val scheduleItemTime = LocalDateTime.parse(it.startAt, commonFullTimePattern).toLocalTime()
+        return@find when {
+          scheduleItemTime == noonTime -> true
+          (scheduleItemTime.isAfter(noonTime) && scheduleItemTime.isBefore(eveningTime)) -> true
+          else -> false
+        }
+      } else {
+        false
+      }
+    })
+
+    if (afternoonItemIndex != -1) {
+      result.add(afternoonItemIndex, ScheduleDividerItem(context.getString(R.string.evening)))
+    }
+
+    val nightItemIndex = result.indexOf(list.find {
+      if (it is ScheduleItem) {
+        val scheduleItemTime = LocalDateTime.parse((it as ScheduleItem).startAt, commonFullTimePattern).toLocalTime()
+        return@find when {
+          scheduleItemTime == eveningTime -> true
+          scheduleItemTime.isAfter(eveningTime) -> true
+          else -> false
+        }
+      } else {
+        false
+      }
+    })
+
+    if (nightItemIndex != -1) {
+      result.add(nightItemIndex, ScheduleDividerItem(context.getString(R.string.night)))
+    }
+
+    return result
   }
 }

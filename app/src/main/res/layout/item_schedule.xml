@@ -10,15 +10,13 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textStyle="bold"
-    android:textAlignment="center"
     android:textSize="@dimen/text_size_schedule"
     android:background="@drawable/selector_schedule_item"
     android:paddingVertical="5dp"
     android:paddingHorizontal="15dp"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
     tools:background="@drawable/bg_schedule_available"
-    tools:text="17:00"/>
+    tools:text="17:00" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

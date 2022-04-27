@@ -8,11 +8,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.amazingtalkcalendar.R
-import com.example.amazingtalkcalendar.data.model.ScheduleItem
 import com.example.amazingtalkcalendar.databinding.FragmentScheduleListBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,15 +46,13 @@ class ScheduleListFragment : Fragment() {
 
   private fun initRecycleView() {
     binding.list.apply {
-      layoutManager = GridLayoutManager(requireContext(), 3)
-
+      layoutManager = LinearLayoutManager(requireContext())
       ResourcesCompat.getDrawable(resources, R.drawable.line_divider, null)?.let {
-        val itemDecorationVertical = DividerItemDecoration(context, DividerItemDecoration.VERTICAL).apply { setDrawable(it) }
-        val itemDecorationHorizontal = DividerItemDecoration(context, DividerItemDecoration.HORIZONTAL).apply { setDrawable(it) }
+        val itemDecorationVertical =
+          DividerItemDecoration(context, DividerItemDecoration.VERTICAL).apply { setDrawable(it) }
         addItemDecoration(itemDecorationVertical)
-        addItemDecoration(itemDecorationHorizontal)
       }
-      this.adapter = listAdapter
+      adapter = listAdapter
     }
   }
 
