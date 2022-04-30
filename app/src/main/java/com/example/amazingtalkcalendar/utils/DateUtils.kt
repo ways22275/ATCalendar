@@ -26,14 +26,6 @@ object DateUtils {
 
   private val weekFields = WeekFields.ISO
 
-  fun getSpecificTime(specificTimeStr: String? = null): LocalTime {
-    return if (specificTimeStr.isNullOrEmpty()) {
-      LocalTime.now()
-    } else {
-      LocalTime.parse(specificTimeStr, commonShortTimePattern)
-    }
-  }
-
   fun getSpecificDateTime(specificDateStr: String? = null): LocalDateTime {
     val now = LocalDateTime.now()
     return if (specificDateStr.isNullOrEmpty()) {
@@ -51,7 +43,6 @@ object DateUtils {
     }
   }
 
-  // TODO Unit test
   fun getFormatUTCDateStringByLocalTime(
     localDateTime: LocalDateTime,
     pattern: DateTimeFormatter = utcFullTimePattern
@@ -61,7 +52,6 @@ object DateUtils {
       .format(pattern)
   }
 
-  // TODO Unit test
   fun getFormatLocalDateStringByUTCTime(utcTime: Long): String {
     val instant = Instant.ofEpochMilli(utcTime)
     val offset = OffsetDateTime.now().offset
@@ -70,7 +60,6 @@ object DateUtils {
       .format(commonFullTimePattern)
   }
 
-  // TODO Unit test
   fun getDaysOfCurrentWeek(localDate: LocalDate): ScheduleTitleDto {
     var date = localDate.apply {
       with(weekFields.dayOfWeek(), 1)
@@ -89,7 +78,6 @@ object DateUtils {
     )
   }
 
-  // TODO Unit test
   fun getDateDisplayName(specificDateStr: String): String {
     val localDate = LocalDate.parse(specificDateStr)
     val pattern = if (Locale.getDefault() == Locale.US) {

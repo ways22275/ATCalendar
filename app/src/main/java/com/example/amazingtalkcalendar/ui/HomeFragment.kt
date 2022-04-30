@@ -69,6 +69,4 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
       binding.viewPager.setCurrentItem(0, false)
     }
   }
-
-
 }

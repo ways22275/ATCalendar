@@ -115,7 +115,6 @@ class HomeViewModel @Inject constructor(
   }
 
   private fun fetchSchedules(teacherName: String = "rebecca-shao", startAt: String) {
-    println("Willy#startAt $startAt")
     viewModelScope.launch {
       val dataList = repo.fetchSchedules(teacherName, startAt).toList().last().data ?: return@launch
       val sortedDataList = (
